@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD — Stockroom Ledger</title>
+<style>
+  :root{
+    --ink:#1c1b19;
+    --paper:#eae6dc;
+    --card:#f6f4ee;
+    --line:#c9c2b2;
+    --accent:#3d5a4c;
+    --accent-soft:#e4ece7;
+    --muted:#6b6558;
+    --mono: 'Courier New', Courier, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+  }
+  .cover{
+    background:var(--ink);
+    color:var(--paper);
+    padding:70px clamp(20px,6vw,90px) 60px;
+  }
+  .cover .eyebrow{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#b9c8be;
+    margin:0 0 14px;
+  }
+  .cover h1{
+    margin:0 0 10px;
+    font-size:clamp(32px,5vw,52px);
+    letter-spacing:-0.5px;
+  }
+  .cover .subtitle{
+    font-size:18px;
+    color:#c9dccf;
+    margin:0 0 28px;
+  }
+  .cover .meta{
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+    font-family:var(--mono);
+    font-size:12px;
+    color:#a9b6ad;
+    border-top:1px solid #3d4a42;
+    padding-top:18px;
+  }
+
+  .doc{
+    max-width:820px;
+    margin:0 auto;
+    padding:40px clamp(20px,6vw,48px) 100px;
+  }
+
+  nav.toc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:20px 24px;
+    margin-bottom:40px;
+  }
+  nav.toc h2{
+    font-family:var(--mono);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--accent);
+    margin:0 0 12px;
+  }
+  nav.toc ol{
+    margin:0;
+    padding-left:20px;
+    columns:2;
+    column-gap:24px;
+  }
+  nav.toc li{
+    font-size:13px;
+    margin-bottom:6px;
+    break-inside:avoid;
+  }
+  nav.toc a{
+    color:var(--ink);
+    text-decoration:none;
+  }
+  nav.toc a:hover{ color:var(--accent); text-decoration:underline; }
+
+  section{
+    margin-bottom:44px;
+    scroll-margin-top:20px;
+  }
+  h1.section-title{
+    font-size:24px;
+    color:var(--accent);
+    border-bottom:2px solid var(--line);
+    padding-bottom:10px;
+    margin:0 0 18px;
+  }
+  h2.subsection-title{
+    font-size:16px;
+    color:var(--ink);
+    margin:26px 0 10px;
+  }
+  p{ margin:0 0 14px; color:#2c2b28; }
+  ul{ margin:0 0 16px; padding-left:22px; }
+  li{ margin-bottom:7px; }
+  strong{ color:var(--ink); }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:18px 0 8px;
+    font-size:14px;
+  }
+  th, td{
+    border:1px solid var(--line);
+    padding:10px 14px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{
+    background:var(--accent);
+    color:#fff;
+    font-weight:600;
+    font-size:13px;
+  }
+  tr:nth-child(even) td{ background:#f2f0e8; }
+
+  .callout{
+    background:var(--accent-soft);
+    border-left:3px solid var(--accent);
+    padding:14px 18px;
+    border-radius:0 4px 4px 0;
+    font-size:14px;
+    margin:16px 0;
+  }
+  .wireframe-block{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px;
+    margin:20px 0;
+    text-align:center;
+  }
+  .wireframe-block svg{
+    width:100%;
+    max-width:600px;
+    height:auto;
+  }
+  .wireframe-caption{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    margin-top:10px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+  code{
+    background:#f2f0e8;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:1px 6px;
+    font-family:var(--mono);
+    font-size:0.9em;
+  }
+  footer{
+    text-align:center;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    padding:30px 20px 50px;
+  }
+  @media print{
+    .cover{ page-break-after:always; }
+    nav.toc{ page-break-after:always; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <p class="eyebrow">Product Requirements Document</p>
+  <h1>Stockroom Ledger</h1>
+  <p class="subtitle">Product CRUD Demo — Fake Store API</p>
+  <div class="meta">
+    <span>VERSION 1.0</span>
+    <span>JULY 19, 2026</span>
+    <span>STATUS: DRAFT</span>
+  </div>
+</div>
+
+<div class="doc">
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#problem">Problem statement</a></li>
+      <li><a href="#goals">Goals</a></li>
+      <li><a href="#users">Target users</a></li>
+      <li><a href="#requirements">Functional requirements</a></li>
+      <li><a href="#wireframe">Wireframe</a></li>
+      <li><a href="#nfr">Non-functional requirements</a></li>
+      <li><a href="#technical">Technical design</a></li>
+      <li><a href="#limitations">Known limitations</a></li>
+      <li><a href="#success">Success criteria</a></li>
+      <li><a href="#future">Future considerations</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview">
+    <h1 class="section-title">1. Overview</h1>
+    <p>Stockroom Ledger is a single-page web application that lets a user create, view, update, and delete product entries against the <a href="https://fakestoreapi.com" target="_blank" rel="noopener">Fake Store API</a>. It exists as a lightweight reference implementation for demonstrating full CRUD interactions using the browser's native Fetch API, with no build tooling, frameworks, or backend of its own.</p>
+  </section>
+
+  <section id="problem">
+    <h1 class="section-title">2. Problem Statement</h1>
+    <p>Developers evaluating the Fake Store API, teaching Fetch API fundamentals, or prototyping a product-management UI need a minimal, self-contained example that exercises all four CRUD operations against a real (if mock) REST endpoint. Existing examples are typically split across multiple files, require a build step, or only cover reads. There's no single-file, copy-pasteable reference that shows create, read, update, and delete together with realistic error handling.</p>
+  </section>
+
+  <section id="goals">
+    <h1 class="section-title">3. Goals</h1>
+    <ul>
+      <li>Provide a working, single-file HTML example of CRUD via <code>fetch()</code>.</li>
+      <li>Make the mock API's non-persistence behavior transparent rather than confusing.</li>
+      <li>Keep the UI usable enough to serve as a real demo, not just a code sample.</li>
+    </ul>
+    <h2 class="subsection-title">Non-goals</h2>
+    <ul>
+      <li>Real data persistence (Fake Store API does not save writes; this is a known and accepted limitation).</li>
+      <li>User authentication or authorization.</li>
+      <li>Multi-user or real-time collaboration.</li>
+      <li>Production-grade inventory management (stock counts, SKUs, variants, etc.).</li>
+    </ul>
+  </section>
+
+  <section id="users">
+    <h1 class="section-title">4. Target Users</h1>
+    <table>
+      <tr><th>User</th><th>Need</th></tr>
+      <tr><td>Developer learning Fetch API</td><td>Wants to see GET/POST/PUT/DELETE in one place with real request/response handling</td></tr>
+      <tr><td>Instructor / workshop facilitator</td><td>Wants a demo-ready artifact to walk through CRUD concepts</td></tr>
+      <tr><td>Prototyper</td><td>Wants a quick product-catalog UI to fork and adapt</td></tr>
+    </table>
+  </section>
+
+  <section id="requirements">
+    <h1 class="section-title">5. Functional Requirements</h1>
+
+    <h2 class="subsection-title">5.1 Read (List Products)</h2>
+    <ul>
+      <li>On load, fetch up to 20 products from <code>GET /products?limit=20</code>.</li>
+      <li>Display each product as a card: image, title, price, category tag, truncated description.</li>
+      <li>Show a loading state while the request is in flight.</li>
+      <li>Show a clear error state if the request fails.</li>
+      <li>Provide a manual "Reload from API" action.</li>
+      <li>Display a live count of items currently shown.</li>
+    </ul>
+
+    <h2 class="subsection-title">5.2 Create (Add Product)</h2>
+    <ul>
+      <li>Form fields: title (text, required), price (number, required, greater than 0), category (select), image URL (optional, falls back to a placeholder), description (textarea, optional).</li>
+      <li>Validate required fields client-side before submission; show inline error messages.</li>
+      <li>On submit, <code>POST /products</code> with the form payload as JSON.</li>
+      <li>On success, prepend the new item to the grid and clear the form.</li>
+      <li>On failure, show an error message and preserve form input.</li>
+    </ul>
+
+    <h2 class="subsection-title">5.3 Update (Edit Product)</h2>
+    <ul>
+      <li>"Edit" action on any card loads that product's data into the form and switches it into edit mode.</li>
+      <li>Edit mode is visually distinct (badge showing the record ID, submit button relabeled "Save changes", a "Cancel" action appears).</li>
+      <li>On submit, <code>PUT /products/:id</code> with the updated payload.</li>
+      <li>On success, update the corresponding card in place and exit edit mode.</li>
+      <li>"Cancel" discards changes and returns the form to create mode.</li>
+    </ul>
+
+    <h2 class="subsection-title">5.4 Delete (Remove Product)</h2>
+    <ul>
+      <li>"Delete" action on any card prompts for confirmation before proceeding.</li>
+      <li>On confirmation, <code>DELETE /products/:id</code>.</li>
+      <li>On success, remove the card from the grid immediately.</li>
+      <li>If the deleted item was being edited, the form resets to create mode.</li>
+    </ul>
+
+    <h2 class="subsection-title">5.5 Error Handling</h2>
+    <ul>
+      <li>All network calls are wrapped in try/catch.</li>
+      <li>Non-2xx responses surface a specific, human-readable message (e.g., "PUT failed: 500") rather than failing silently.</li>
+      <li>The app never leaves the UI in an ambiguous loading state on error.</li>
+    </ul>
+  </section>
+
+  <section id="wireframe">
+    <h1 class="section-title">6. Wireframe</h1>
+    <p>The listing view follows a familiar e-commerce grid pattern (similar to Flipkart's product listing): a search bar and filter chips up top, then a responsive grid of product cards. Each card keeps the same anatomy — image, title, rating badge, price with a struck-through original price and discount percentage, and an "Add to cart" action — so the eye can scan the grid quickly without re-learning the layout per item.</p>
+
+    <div class="wireframe-block">
+      <svg viewBox="0 0 700 640" xmlns="http://www.w3.org/2000/svg">
+        <rect width="700" height="640" fill="#ffffff"/>
+        <rect x="20" y="16" width="660" height="36" rx="4" fill="none" stroke="#c9c2b2" stroke-width="1"/>
+        <circle cx="40" cy="34" r="7" fill="none" stroke="#8a8a86" stroke-width="1.5"/>
+        <line x1="45" y1="39" x2="50" y2="44" stroke="#8a8a86" stroke-width="1.5"/>
+        <text x="60" y="38" font-size="12" fill="#8a8a86" font-family="Arial, sans-serif">Search for products, brands and more</text>
+
+        <rect x="20" y="64" width="70" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+        <text x="55" y="80" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Price</text>
+        <rect x="98" y="64" width="80" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+        <text x="138" y="80" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Brand</text>
+        <rect x="186" y="64" width="90" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+        <text x="231" y="80" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Rating 4+</text>
+        <rect x="284" y="64" width="100" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+        <text x="334" y="80" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Discount</text>
+
+        <g font-family="Arial, sans-serif">
+        <g transform="translate(20,110)">
+          <rect width="200" height="260" rx="4" fill="#f6f4ee" stroke="#c9c2b2"/>
+          <rect x="20" y="16" width="160" height="120" rx="4" fill="#eae6dc" stroke="#c9c2b2"/>
+          <line x1="20" y1="16" x2="180" y2="136" stroke="#c9c2b2"/>
+          <line x1="180" y1="16" x2="20" y2="136" stroke="#c9c2b2"/>
+          <rect x="20" y="148" width="150" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="162" width="100" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="180" width="40" height="16" rx="8" fill="#c0dd97"/>
+          <text x="40" y="192" font-size="10" text-anchor="middle" fill="#27500a">4.2 star</text>
+          <text x="20" y="216" font-size="15" font-weight="bold" fill="#1c1b19">Rs 999</text>
+          <text x="62" y="216" font-size="11" fill="#8a8a86" text-decoration="line-through">Rs 1,499</text>
+          <text x="20" y="230" font-size="10" fill="#3b6d11">33% off</text>
+          <rect x="20" y="238" width="160" height="20" rx="4" fill="none" stroke="#b4b2a9"/>
+          <text x="100" y="252" font-size="10" text-anchor="middle" fill="#5f5e5a">Add to cart</text>
+        </g>
+
+        <g transform="translate(240,110)">
+          <rect width="200" height="260" rx="4" fill="#f6f4ee" stroke="#c9c2b2"/>
+          <rect x="20" y="16" width="160" height="120" rx="4" fill="#eae6dc" stroke="#c9c2b2"/>
+          <line x1="20" y1="16" x2="180" y2="136" stroke="#c9c2b2"/>
+          <line x1="180" y1="16" x2="20" y2="136" stroke="#c9c2b2"/>
+          <rect x="20" y="148" width="150" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="162" width="110" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="180" width="40" height="16" rx="8" fill="#c0dd97"/>
+          <text x="40" y="192" font-size="10" text-anchor="middle" fill="#27500a">4.5 star</text>
+          <text x="20" y="216" font-size="15" font-weight="bold" fill="#1c1b19">Rs 2,199</text>
+          <text x="72" y="216" font-size="11" fill="#8a8a86" text-decoration="line-through">Rs 2,999</text>
+          <text x="20" y="230" font-size="10" fill="#3b6d11">27% off</text>
+          <rect x="20" y="238" width="160" height="20" rx="4" fill="none" stroke="#b4b2a9"/>
+          <text x="100" y="252" font-size="10" text-anchor="middle" fill="#5f5e5a">Add to cart</text>
+        </g>
+
+        <g transform="translate(460,110)">
+          <rect width="200" height="260" rx="4" fill="#f6f4ee" stroke="#c9c2b2"/>
+          <rect x="20" y="16" width="160" height="120" rx="4" fill="#eae6dc" stroke="#c9c2b2"/>
+          <line x1="20" y1="16" x2="180" y2="136" stroke="#c9c2b2"/>
+          <line x1="180" y1="16" x2="20" y2="136" stroke="#c9c2b2"/>
+          <rect x="20" y="148" width="150" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="162" width="90" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="180" width="40" height="16" rx="8" fill="#fac775"/>
+          <text x="40" y="192" font-size="10" text-anchor="middle" fill="#633806">3.8 star</text>
+          <text x="20" y="216" font-size="15" font-weight="bold" fill="#1c1b19">Rs 549</text>
+          <text x="58" y="216" font-size="11" fill="#8a8a86" text-decoration="line-through">Rs 799</text>
+          <text x="20" y="230" font-size="10" fill="#3b6d11">31% off</text>
+          <rect x="20" y="238" width="160" height="20" rx="4" fill="none" stroke="#b4b2a9"/>
+          <text x="100" y="252" font-size="10" text-anchor="middle" fill="#5f5e5a">Add to cart</text>
+        </g>
+
+        <g transform="translate(20,390)">
+          <rect width="200" height="230" rx="4" fill="#f6f4ee" stroke="#c9c2b2"/>
+          <rect x="20" y="16" width="160" height="110" rx="4" fill="#eae6dc" stroke="#c9c2b2"/>
+          <line x1="20" y1="16" x2="180" y2="126" stroke="#c9c2b2"/>
+          <line x1="180" y1="16" x2="20" y2="126" stroke="#c9c2b2"/>
+          <rect x="20" y="138" width="150" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="152" width="100" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="170" width="40" height="16" rx="8" fill="#c0dd97"/>
+          <text x="40" y="182" font-size="10" text-anchor="middle" fill="#27500a">4.0 star</text>
+          <text x="20" y="206" font-size="15" font-weight="bold" fill="#1c1b19">Rs 1,299</text>
+          <text x="72" y="206" font-size="11" fill="#8a8a86" text-decoration="line-through">Rs 1,899</text>
+          <rect x="20" y="212" width="160" height="20" rx="4" fill="none" stroke="#b4b2a9"/>
+          <text x="100" y="226" font-size="10" text-anchor="middle" fill="#5f5e5a">Add to cart</text>
+        </g>
+
+        <g transform="translate(240,390)">
+          <rect width="200" height="230" rx="4" fill="#f6f4ee" stroke="#c9c2b2"/>
+          <rect x="20" y="16" width="160" height="110" rx="4" fill="#eae6dc" stroke="#c9c2b2"/>
+          <line x1="20" y1="16" x2="180" y2="126" stroke="#c9c2b2"/>
+          <line x1="180" y1="16" x2="20" y2="126" stroke="#c9c2b2"/>
+          <rect x="20" y="138" width="150" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="152" width="120" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="170" width="40" height="16" rx="8" fill="#fac775"/>
+          <text x="40" y="182" font-size="10" text-anchor="middle" fill="#633806">3.9 star</text>
+          <text x="20" y="206" font-size="15" font-weight="bold" fill="#1c1b19">Rs 349</text>
+          <text x="58" y="206" font-size="11" fill="#8a8a86" text-decoration="line-through">Rs 599</text>
+          <rect x="20" y="212" width="160" height="20" rx="4" fill="none" stroke="#b4b2a9"/>
+          <text x="100" y="226" font-size="10" text-anchor="middle" fill="#5f5e5a">Add to cart</text>
+        </g>
+
+        <g transform="translate(460,390)">
+          <rect width="200" height="230" rx="4" fill="#f6f4ee" stroke="#c9c2b2"/>
+          <rect x="20" y="16" width="160" height="110" rx="4" fill="#eae6dc" stroke="#c9c2b2"/>
+          <line x1="20" y1="16" x2="180" y2="126" stroke="#c9c2b2"/>
+          <line x1="180" y1="16" x2="20" y2="126" stroke="#c9c2b2"/>
+          <rect x="20" y="138" width="150" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="152" width="90" height="8" rx="2" fill="#b4b2a9"/>
+          <rect x="20" y="170" width="40" height="16" rx="8" fill="#c0dd97"/>
+          <text x="40" y="182" font-size="10" text-anchor="middle" fill="#27500a">4.7 star</text>
+          <text x="20" y="206" font-size="15" font-weight="bold" fill="#1c1b19">Rs 4,999</text>
+          <text x="76" y="206" font-size="11" fill="#8a8a86" text-decoration="line-through">Rs 6,499</text>
+          <rect x="20" y="212" width="160" height="20" rx="4" fill="none" stroke="#b4b2a9"/>
+          <text x="100" y="226" font-size="10" text-anchor="middle" fill="#5f5e5a">Add to cart</text>
+        </g>
+        </g>
+      </svg>
+      <p class="wireframe-caption">Fig 1 — Product listing grid, Flipkart-style layout</p>
+    </div>
+
+    <p>Key layout decisions this implies for the current app:</p>
+    <ul>
+      <li>Cards keep a fixed visual rhythm (image → title → rating → price → action) rather than varying by product.</li>
+      <li>Discount/rating badges are optional per item, but the card frame stays the same size whether or not they're present, so the grid doesn't look ragged.</li>
+      <li>Filter chips are implemented as a category filter in the current build (see Section 8).</li>
+    </ul>
+  </section>
+
+  <section id="nfr">
+    <h1 class="section-title">7. Non-Functional Requirements</h1>
+    <ul>
+      <li><strong>Zero dependencies:</strong> plain HTML/CSS/JS, no build step, works by opening the file directly in a browser.</li>
+      <li><strong>Responsive:</strong> usable from ~360px mobile width up through desktop; form and grid stack on narrow viewports.</li>
+      <li><strong>Accessibility baseline:</strong> labeled form fields, visible focus states, sufficient color contrast.</li>
+      <li><strong>Performance:</strong> initial product list capped at 20 items to keep the demo snappy; images lazy-load.</li>
+      <li><strong>Resilience to mock-API quirks:</strong> because Fake Store API doesn't persist POST/PUT/DELETE server-side, the app reconciles local state after each write so the UI reflects the user's intent even though a fresh page reload from the API would not show those changes.</li>
+    </ul>
+  </section>
+
+  <section id="technical">
+    <h1 class="section-title">8. Technical Design</h1>
+    <ul>
+      <li><strong>Endpoint base:</strong> <code>https://fakestoreapi.com/products</code></li>
+      <li><strong>Methods used:</strong> <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, all via the native <code>fetch()</code> API with <code>application/json</code> bodies.</li>
+      <li><strong>State model:</strong> a single in-memory <code>products</code> array is the source of truth for rendering; it is patched optimistically after each successful write and re-rendered.</li>
+      <li><strong>Category filter chips</strong> and a title search box filter the in-memory array client-side; no additional endpoints are involved.</li>
+      <li>No routing, no persistence layer, no external libraries.</li>
+    </ul>
+  </section>
+
+  <section id="limitations">
+    <h1 class="section-title">9. Known Limitations</h1>
+    <div class="callout">
+      <ul style="margin-bottom:0;">
+        <li>Data does not persist across page reloads — this is a constraint of the underlying mock API, not the app.</li>
+        <li>New product IDs are client-generated approximations since the API doesn't return stable new IDs.</li>
+        <li>Discount price and percentage are derived locally for display purposes; the API doesn't provide a real "original price" field.</li>
+        <li>No pagination beyond the initial 20-item fetch.</li>
+        <li>No image upload; images are URL-only.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="success">
+    <h1 class="section-title">10. Success Criteria</h1>
+    <ul>
+      <li>A user can perform all four CRUD operations end-to-end without opening dev tools.</li>
+      <li>Every network failure produces a visible, specific message.</li>
+      <li>The file runs standalone with no console errors on load.</li>
+    </ul>
+  </section>
+
+  <section id="future">
+    <h1 class="section-title">11. Future Considerations</h1>
+    <ul>
+      <li>Swap the mock API for a real backend with actual persistence.</li>
+      <li>Add sort-by-price and multi-select filtering alongside the existing category chips.</li>
+      <li>Add pagination or infinite scroll for larger catalogs.</li>
+      <li>Add optimistic UI rollback if a write fails after an in-place update.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>Stockroom Ledger PRD · v1.0 · July 19, 2026</footer>
+
+</body>
+</html>
