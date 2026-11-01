@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD — React Basics: Stockroom Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #191816;
+    --ink-light: #383530;
+    --paper: #f8f6f0;
+    --paper-subtle: #eee9dc;
+    --sidebar-bg: #f3efe4;
+    --card: #ffffff;
+    --line: #ded7c7;
+    --line-subtle: #eae3d4;
+    --line-dark: #b8af9a;
+    --accent: #275240;
+    --accent-hover: #1b3d2f;
+    --accent-soft: #e5ede7;
+    --accent-border: #b3cdc0;
+    --react-blue: #087ea4;
+    --react-blue-soft: #eaf5f9;
+    --muted: #6b6354;
+    --sidebar-width: 320px;
+    --header-height: 60px;
+    --mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+    --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --shadow-sm: 0 1px 3px rgba(25, 24, 22, 0.05), 0 1px 2px rgba(25, 24, 22, 0.03);
+    --shadow-md: 0 4px 16px rgba(25, 24, 22, 0.07), 0 2px 5px rgba(25, 24, 22, 0.04);
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 30px;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Reading Progress Bar */
+  #progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #087ea4, #275240);
+    z-index: 1000;
+    transition: width 0.1s ease-out;
+  }
+
+  /* Mobile Top Bar */
+  .mobile-topbar {
+    display: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--header-height);
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    padding: 0 16px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  .mobile-brand .badge {
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .menu-toggle-btn {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .menu-toggle-btn:hover {
+    background: var(--line-subtle);
+  }
+
+  /* Main 2-Column Shell */
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* LEFT SIDEBAR (Sticky Navigation) */
+  .sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--line);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 90;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .sidebar-header {
+    padding: 24px 22px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--sidebar-bg);
+  }
+
+  .doc-type-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .doc-type-tag .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--react-blue);
+    border-radius: 50%;
+  }
+
+  .sidebar-title {
+    margin: 0 0 6px;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+
+  .sidebar-subtitle {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .sidebar-meta-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: var(--paper-subtle);
+    border: 1px solid var(--line);
+    color: var(--ink-light);
+    font-weight: 500;
+  }
+
+  .pill.react-tag {
+    background: var(--react-blue-soft);
+    border-color: #a8d6e6;
+    color: var(--react-blue);
+    font-weight: 600;
+  }
+
+  .pill.status-draft {
+    background: #fbf2df;
+    border-color: #e5cb93;
+    color: #7d5206;
+  }
+
+  /* Search/Filter Bar in Sidebar */
+  .sidebar-search-box {
+    padding: 14px 20px 8px;
+  }
+
+  .search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-wrapper svg {
+    position: absolute;
+    left: 10px;
+    width: 14px;
+    height: 14px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 7px 12px 7px 30px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .search-input::placeholder {
+    color: #9c9485;
+  }
+
+  /* Navigation Link List */
+  .sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 14px 20px;
+    scroll-behavior: smooth;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .sidebar-nav::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 4px;
+  }
+
+  .nav-section-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    padding: 10px 10px 6px;
+    font-weight: 600;
+  }
+
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-item {
+    margin-bottom: 2px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--ink-light);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.12s ease;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-link:hover {
+    background: rgba(39, 82, 64, 0.06);
+    color: var(--accent);
+  }
+
+  .nav-link.active {
+    background: var(--card);
+    color: var(--accent);
+    font-weight: 700;
+    border-left: 3px solid var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nav-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 18px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .nav-link.active .nav-num {
+    color: var(--accent);
+  }
+
+  .nav-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-footer {
+    padding: 14px 18px;
+    border-top: 1px solid var(--line);
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .quick-action-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .quick-action-btn:hover {
+    background: var(--card);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Overlay for Mobile Drawer */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 85;
+  }
+
+  /* RIGHT CONTENT COLUMN */
+  .main-column {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+  }
+
+  /* Document Hero Header */
+  .doc-hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 56px clamp(24px, 5vw, 64px) 46px;
+    position: relative;
+    border-bottom: 3px solid var(--accent);
+  }
+
+  .doc-hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .doc-hero .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #a4bcaf;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .doc-hero h1 {
+    margin: 0 0 10px;
+    font-size: clamp(32px, 4.2vw, 46px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+  }
+
+  .doc-hero .subtitle {
+    font-size: 18px;
+    color: #c9dccf;
+    margin: 0 0 24px;
+    font-weight: 400;
+  }
+
+  .doc-hero .meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #a9b6ad;
+    border-top: 1px solid #324238;
+    padding-top: 18px;
+  }
+
+  .doc-hero .meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Document Body Content Area */
+  .doc-content-wrapper {
+    flex: 1;
+    padding: 48px clamp(20px, 4vw, 54px) 100px;
+  }
+
+  .doc-body {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* Section Styling */
+  section.content-section {
+    margin-bottom: 56px;
+    scroll-margin-top: 36px;
+    background: transparent;
+  }
+
+  .section-header-wrap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 10px;
+    margin: 0 0 20px;
+  }
+
+  h1.section-title {
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  h2.subsection-title {
+    font-size: 16.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 28px 0 10px;
+    letter-spacing: -0.2px;
+  }
+
+  p {
+    margin: 0 0 15px;
+    color: var(--ink-light);
+    font-size: 15.5px;
+  }
+
+  ul, ol {
+    margin: 0 0 18px;
+    padding-left: 22px;
+    color: var(--ink-light);
+  }
+
+  li {
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  a.content-link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+  }
+
+  a.content-link:hover {
+    color: var(--accent-hover);
+  }
+
+  /* Tables */
+  .table-responsive {
+    overflow-x: auto;
+    margin: 18px 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--card);
+    box-shadow: var(--shadow-sm);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  th, td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  th {
+    background: var(--accent);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+  }
+
+  tr:nth-child(even) td {
+    background: var(--paper);
+  }
+
+  tr:hover td {
+    background: var(--accent-soft);
+  }
+
+  /* Callout Boxes */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    font-size: 14.5px;
+    margin: 20px 0;
+    border-top: 1px solid rgba(39, 82, 64, 0.15);
+    border-right: 1px solid rgba(39, 82, 64, 0.15);
+    border-bottom: 1px solid rgba(39, 82, 64, 0.15);
+  }
+
+  .callout.react-tip {
+    background: #eef7fa;
+    border-left-color: var(--react-blue);
+    border-top-color: #bee0ec;
+    border-right-color: #bee0ec;
+    border-bottom-color: #bee0ec;
+  }
+
+  .callout-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Tree Diagram & Code Blocks */
+  .component-tree-card {
+    background: #1c1b18;
+    color: #f2eee3;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    box-shadow: var(--shadow-md);
+    border: 1px solid #38352f;
+  }
+
+  .component-tree-card .tree-title {
+    color: #a4bcaf;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #38352f;
+    padding-bottom: 6px;
+  }
+
+  .component-tree-card .comp { color: #58c4dc; font-weight: 600; }
+  .component-tree-card .prop { color: #fac775; font-size: 12px; }
+  .component-tree-card .desc { color: #8c8577; }
+
+  /* Wireframe Container */
+  .wireframe-block {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 22px 0;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .wireframe-block svg {
+    width: 100%;
+    max-width: 660px;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .wireframe-caption {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  code {
+    background: var(--paper-subtle);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: var(--mono);
+    font-size: 0.88em;
+    color: #275240;
+  }
+
+  /* Content Footer */
+  footer.doc-footer {
+    border-top: 1px solid var(--line);
+    padding: 30px clamp(20px, 4vw, 54px) 50px;
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .back-to-top-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .back-to-top-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Print Styles */
+  @media print {
+    .sidebar, .mobile-topbar, #progress-bar, .sidebar-backdrop, .quick-action-btn, .back-to-top-link {
+      display: none !important;
+    }
+    .app-shell { display: block; }
+    .main-column { width: 100%; }
+    .doc-hero { page-break-after: always; }
+    section.content-section { page-break-inside: avoid; }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 960px) {
+    .mobile-topbar {
+      display: flex;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-backdrop.active {
+      display: block;
+    }
+
+    .doc-content-wrapper {
+      padding: 30px 18px 60px;
+    }
+
+    .doc-hero {
+      padding: 40px 18px 34px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Scroll Progress Bar -->
+<div id="progress-bar" aria-hidden="true"></div>
+
+<!-- Mobile Navigation Bar -->
+<header class="mobile-topbar">
+  <div class="mobile-brand">
+    <span class="badge">REACT PRD</span>
+    <span>Stockroom Ledger</span>
+  </div>
+  <button class="menu-toggle-btn" id="menuToggle" aria-label="Toggle Navigation Menu">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <span>Menu</span>
+  </button>
+</header>
+
+<!-- Mobile Backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="app-shell">
+
+  <!-- ============================================== -->
+  <!-- LEFT COLUMN: STICKY NAVIGATION MENU           -->
+  <!-- ============================================== -->
+  <aside class="sidebar" id="sidebarNav" aria-label="Table of Contents">
+    <div class="sidebar-header">
+      <div class="doc-type-tag">
+        <span class="dot"></span>
+        React Basics PRD
+      </div>
+      <h2 class="sidebar-title">Stockroom Ledger</h2>
+      <p class="sidebar-subtitle">CRUD Web App &bull; Components, Props, Hooks &amp; State</p>
+      <div class="sidebar-meta-pills">
+        <span class="pill react-tag">REACT 18/19</span>
+        <span class="pill">VITE</span>
+        <span class="pill status-draft">DRAFT</span>
+      </div>
+    </div>
+
+    <!-- Search/Filter -->
+    <div class="sidebar-search-box">
+      <div class="search-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="sectionSearch" class="search-input" placeholder="Filter sections..." aria-label="Filter navigation sections">
+      </div>
+    </div>
+
+    <!-- Navigation links -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Table of Contents</div>
+      <ul class="nav-list" id="navList">
+        <li class="nav-item">
+          <a href="#overview" class="nav-link active" data-section="overview">
+            <span class="nav-num">01</span>
+            <span class="nav-text">Overview &amp; Purpose</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#problem" class="nav-link" data-section="problem">
+            <span class="nav-num">02</span>
+            <span class="nav-text">Problem &amp; Learning Gap</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#goals" class="nav-link" data-section="goals">
+            <span class="nav-num">03</span>
+            <span class="nav-text">Goals &amp; Core Concepts</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#users" class="nav-link" data-section="users">
+            <span class="nav-num">04</span>
+            <span class="nav-text">Target Personas</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#requirements" class="nav-link" data-section="requirements">
+            <span class="nav-num">05</span>
+            <span class="nav-text">Functional Requirements</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#components" class="nav-link" data-section="components">
+            <span class="nav-num">06</span>
+            <span class="nav-text">Component Architecture</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#wireframe" class="nav-link" data-section="wireframe">
+            <span class="nav-num">07</span>
+            <span class="nav-text">UI Wireframe &amp; Layout</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#state" class="nav-link" data-section="state">
+            <span class="nav-num">08</span>
+            <span class="nav-text">State &amp; Hooks Design</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#nfr" class="nav-link" data-section="nfr">
+            <span class="nav-num">09</span>
+            <span class="nav-text">Non-Functional Reqs</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#limitations" class="nav-link" data-section="limitations">
+            <span class="nav-num">10</span>
+            <span class="nav-text">React Gotchas &amp; Limits</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#success" class="nav-link" data-section="success">
+            <span class="nav-num">11</span>
+            <span class="nav-text">Success &amp; Grading Rubric</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#roadmap" class="nav-link" data-section="roadmap">
+            <span class="nav-num">12</span>
+            <span class="nav-text">Roadmap &amp; Next Steps</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="quick-action-btn" onclick="window.print()" title="Print or save as PDF">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        <span>Print PRD</span>
+      </button>
+      <span>12 Sections</span>
+    </div>
+  </aside>
+
+  <!-- ============================================== -->
+  <!-- RIGHT COLUMN: MAIN DOCUMENT CONTENT           -->
+  <!-- ============================================== -->
+  <main class="main-column" id="mainContent">
+
+    <!-- Document Header / Hero Banner -->
+    <header class="doc-hero">
+      <div class="doc-hero-inner">
+        <p class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path>
+          </svg>
+          Product Requirements Document &bull; React Foundations
+        </p>
+        <h1>Stockroom Ledger (React Edition)</h1>
+        <p class="subtitle">A Comprehensive React Basics CRUD Application with Components, Controlled Forms, Hooks &amp; REST Integration</p>
+        <div class="meta">
+          <span><strong>VERSION:</strong> 2.0 (React)</span>
+          <span><strong>TARGET:</strong> REACT 18 / 19</span>
+          <span><strong>STATUS:</strong> APPROVED FOR BUILD</span>
+          <span><strong>FOCUS:</strong> HOOKS &amp; PROPS</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Articles -->
+    <div class="doc-content-wrapper">
+      <article class="doc-body">
+
+        <!-- 1. Overview -->
+        <section class="content-section" id="overview">
+          <div class="section-header-wrap">
+            <h1 class="section-title">1. Overview &amp; Purpose</h1>
+            <span class="section-tag">Vision</span>
+          </div>
+          <p><strong>Stockroom Ledger (React Edition)</strong> is an interactive single-page inventory catalog designed to teach and demonstrate foundational React engineering principles through an end-to-end CRUD (Create, Read, Update, Delete) product management workflow. Using the public <a class="content-link" href="https://fakestoreapi.com" target="_blank" rel="noopener">Fake Store API</a> as its mock REST backend, the application illustrates how real-world React frontends handle component decomposition, props communication, state orchestration, lifecycle effects, and controlled user inputs.</p>
+          <p>Rather than relying on heavyweight abstractions like Redux, Zustand, or full-stack frameworks (Next.js/Remix), this project stays intentionally centered on standard React primitives: functional components, JSX templating, <code>useState</code>, <code>useEffect</code>, <code>useMemo</code>, and custom hooks.</p>
+        </section>
+
+        <!-- 2. Problem Statement -->
+        <section class="content-section" id="problem">
+          <div class="section-header-wrap">
+            <h1 class="section-title">2. Problem &amp; Learning Gap</h1>
+            <span class="section-tag">Context</span>
+          </div>
+          <p>Beginner and intermediate developers transitioning from vanilla JavaScript to React frequently encounter a steep conceptual hurdle: tutorials typically build trivial "counter" buttons or standalone "to-do lists" with hardcoded data. When tasked with building an actual application that interacts with a network API, manages tabular/card grids, updates data in place, and validates forms, they face major pitfalls:</p>
+          <ul>
+            <li><strong>State mutation bugs:</strong> Directly modifying arrays or objects instead of creating immutable copies with <code>setState</code>.</li>
+            <li><strong>Overusing or misusing <code>useEffect</code>:</strong> Triggering infinite fetch loops, missing dependency array entries, or not cleaning up async operations.</li>
+            <li><strong>Props drilling confusion:</strong> Inability to cleanly lift state up or pass callback event handlers (e.g. <code>onDelete</code>, <code>onEdit</code>) to child cards.</li>
+            <li><strong>Uncontrolled vs. Controlled inputs:</strong> Struggling to sync form fields with React component state and validate inputs before API dispatch.</li>
+          </ul>
+          <p>This PRD establishes a definitive blueprint for an educational yet production-grade reference project that bridges these gaps.</p>
+        </section>
+
+        <!-- 3. Goals & Core Concepts -->
+        <section class="content-section" id="goals">
+          <div class="section-header-wrap">
+            <h1 class="section-title">3. Goals &amp; Core Concepts</h1>
+            <span class="section-tag">Scope</span>
+          </div>
+          <p>The primary outcome of this project is mastery of fundamental React mental models and patterns:</p>
+          <ul>
+            <li><strong>Component Modularity:</strong> Decomposing a rich UI into single-responsibility, reusable presentational and container components.</li>
+            <li><strong>Unidirectional Data Flow:</strong> Passing data down via <code>props</code> and bubbling events up via callback functions.</li>
+            <li><strong>Local State Management:</strong> Managing UI state (search queries, active filters, modal states) and entity state (products list) with <code>useState</code>.</li>
+            <li><strong>Lifecycle &amp; Side Effects:</strong> Handling API data fetching and error states cleanly with <code>useEffect</code> and AbortController.</li>
+            <li><strong>Controlled Forms:</strong> Building reliable two-way bound inputs with validation states for both Create and Edit modes.</li>
+            <li><strong>Derived State &amp; Memoization:</strong> Filtering and searching data on the fly using <code>useMemo</code> without duplicating state in memory.</li>
+          </ul>
+          <h2 class="subsection-title">Explicit Non-Goals</h2>
+          <ul>
+            <li>External state management libraries (no Redux, Zustand, Recoil).</li>
+            <li>Client-side routing (single-page dashboard layout keeps focus on state fundamentals).</li>
+            <li>Complex database persistence (the project gracefully simulates writes against Fake Store API).</li>
+            <li>Heavy CSS UI component libraries (styled with clean CSS modules or vanilla CSS to highlight DOM structure).</li>
+          </ul>
+        </section>
+
+        <!-- 4. Target Personas -->
+        <section class="content-section" id="users">
+          <div class="section-header-wrap">
+            <h1 class="section-title">4. Target Personas</h1>
+            <span class="section-tag">Audience</span>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 30%;">Learner Persona</th>
+                  <th style="width: 35%;">Key Need</th>
+                  <th>Primary Takeaway</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Aspiring React Developer</strong></td>
+                  <td>Transitioning from HTML/JS to modern React hooks.</td>
+                  <td>Understands state immutability, component lifecycle, and hook dependency arrays.</td>
+                </tr>
+                <tr>
+                  <td><strong>Bootcamp Student / Self-Taught</strong></td>
+                  <td>Needs a cohesive portfolio project that demonstrates full CRUD.</td>
+                  <td>Produces clean, idiomatic React code with controlled inputs and modular folder architecture.</td>
+                </tr>
+                <tr>
+                  <td><strong>Frontend Mentor / Instructor</strong></td>
+                  <td>Requires a structured rubric and predictable codebase for code reviews.</td>
+                  <td>Uses this PRD as an assignment spec with clear grading milestones and component boundaries.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 5. Functional Requirements -->
+        <section class="content-section" id="requirements">
+          <div class="section-header-wrap">
+            <h1 class="section-title">5. Functional Requirements</h1>
+            <span class="section-tag">CRUD Specs</span>
+          </div>
+
+          <h2 class="subsection-title">5.1 Read: Product Catalog &amp; Feed</h2>
+          <ul>
+            <li>On initial component mount (<code>useEffect</code>), fetch the initial 20 items from <code>GET https://fakestoreapi.com/products?limit=20</code>.</li>
+            <li>Display items in a responsive grid of <code>&lt;ProductCard /&gt;</code> components.</li>
+            <li>Render explicit visual states:
+              <ul>
+                <li><strong>Loading State:</strong> Display animated skeleton cards while the request is in-flight.</li>
+                <li><strong>Error State:</strong> Display a retry banner if the network request fails.</li>
+                <li><strong>Empty State:</strong> Display "No products match your criteria" if a search/category filter produces 0 results.</li>
+              </ul>
+            </li>
+            <li>Live statistics banner showing total items loaded and visible results count.</li>
+          </ul>
+
+          <h2 class="subsection-title">5.2 Create: Add Product Modal/Drawer</h2>
+          <ul>
+            <li>An "+ Add Product" button opens a controlled <code>&lt;ProductFormModal /&gt;</code>.</li>
+            <li>Controlled form fields:
+              <ul>
+                <li><code>title</code> (text, required, min 3 chars).</li>
+                <li><code>price</code> (number, required, must be &gt; 0).</li>
+                <li><code>category</code> (select: electronics, jewelery, men's clothing, women's clothing).</li>
+                <li><code>image</code> (URL text input with real-time preview, optional fallback).</li>
+                <li><code>description</code> (textarea, optional).</li>
+              </ul>
+            </li>
+            <li>Validates fields on blur and submit; displays inline error text.</li>
+            <li>On submit, dispatches <code>POST /products</code>, prepends the new item to the React state array optimistically, and displays a temporary success toast notification.</li>
+          </ul>
+
+          <h2 class="subsection-title">5.3 Update: Edit Product Mode</h2>
+          <ul>
+            <li>Each <code>&lt;ProductCard /&gt;</code> includes an "Edit" button that passes the product object up to parent state.</li>
+            <li>The <code>&lt;ProductFormModal /&gt;</code> opens populated with the existing product's attributes.</li>
+            <li>The modal switches to "Edit Mode": shows an ID badge, changes submit button to "Save Changes", and enables a "Cancel" button.</li>
+            <li>On submit, dispatches <code>PUT /products/:id</code>, updates that specific item in the React state array immutably via <code>products.map(...)</code>, and closes the modal.</li>
+          </ul>
+
+          <h2 class="subsection-title">5.4 Delete: Remove Product with Confirmation</h2>
+          <ul>
+            <li>Each card features a "Delete" button that triggers a confirmation modal: <em>"Are you sure you want to delete this product?"</em></li>
+            <li>On user confirmation, dispatches <code>DELETE /products/:id</code>.</li>
+            <li>On response, immutably removes the item from state: <code>setProducts(prev =&gt; prev.filter(p =&gt; p.id !== targetId))</code>.</li>
+            <li>Triggers a success toast notification confirming deletion.</li>
+          </ul>
+
+          <h2 class="subsection-title">5.5 Real-Time Search &amp; Category Filtering</h2>
+          <ul>
+            <li><code>&lt;SearchBar /&gt;</code>: Controlled input for instant title filtering (case-insensitive substring match).</li>
+            <li><code>&lt;CategoryFilter /&gt;</code>: Horizontal pills/chips ("All", "Electronics", "Jewelery", etc.) to toggle category selection.</li>
+            <li>Filter logic is implemented as a <strong>derived state</strong> using <code>useMemo</code>, ensuring the raw products array remains intact in parent state.</li>
+          </ul>
+        </section>
+
+        <!-- 6. Component Architecture -->
+        <section class="content-section" id="components">
+          <div class="section-header-wrap">
+            <h1 class="section-title">6. Component Architecture &amp; Hierarchy</h1>
+            <span class="section-tag">Structure</span>
+          </div>
+          <p>The application follows a clean unidirectional component hierarchy. State is maintained at the lowest common ancestor (<code>&lt;App /&gt;</code> or dedicated container), and child components receive data and event handlers strictly through props:</p>
+
+          <div class="component-tree-card">
+            <div class="tree-title">React Component Tree &amp; Prop Flow</div>
+            <div><span class="comp">&lt;App /&gt;</span> <span class="desc">// Root Container: holds products, filter, search, activeModal state</span></div>
+            <div>&nbsp;&nbsp;├── <span class="comp">&lt;Header /&gt;</span> <span class="prop">{ onOpenCreateModal }</span></div>
+            <div>&nbsp;&nbsp;├── <span class="comp">&lt;Toolbar /&gt;</span></div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="comp">&lt;SearchBar /&gt;</span> <span class="prop">{ query, onQueryChange }</span></div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="comp">&lt;CategoryChips /&gt;</span> <span class="prop">{ categories, activeCategory, onSelectCategory }</span></div>
+            <div>&nbsp;&nbsp;├── <span class="comp">&lt;StatsBar /&gt;</span> <span class="prop">{ totalCount, filteredCount, isLoading }</span></div>
+            <div>&nbsp;&nbsp;├── <span class="comp">&lt;ProductGrid /&gt;</span></div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="comp">&lt;LoadingSkeleton /&gt;</span> <span class="desc">// Rendered when isLoading === true</span></div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="comp">&lt;EmptyState /&gt;</span> <span class="desc">// Rendered when filteredProducts.length === 0</span></div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="comp">&lt;ProductCard /&gt;</span> <span class="prop">{ product, onEdit, onDeleteRequest }</span> (mapped x N)</div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="comp">&lt;RatingBadge /&gt;</span> <span class="prop">{ rating }</span></div>
+            <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="comp">&lt;CardActions /&gt;</span> <span class="prop">{ onEdit, onDelete }</span></div>
+            <div>&nbsp;&nbsp;├── <span class="comp">&lt;ProductModal /&gt;</span> <span class="prop">{ isOpen, mode, initialData, onSubmit, onClose }</span></div>
+            <div>&nbsp;&nbsp;├── <span class="comp">&lt;DeleteConfirmModal /&gt;</span> <span class="prop">{ isOpen, product, onConfirm, onCancel }</span></div>
+            <div>&nbsp;&nbsp;└── <span class="comp">&lt;ToastContainer /&gt;</span> <span class="prop">{ toasts }</span></div>
+          </div>
+
+          <h2 class="subsection-title">Component Responsibility Breakdown</h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Type</th>
+                  <th>Key Responsibilities</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>&lt;App /&gt;</code></td>
+                  <td>Container / Smart</td>
+                  <td>Fetches data, manages product list, filter query, selected product for edit, and toast queues.</td>
+                </tr>
+                <tr>
+                  <td><code>&lt;ProductGrid /&gt;</code></td>
+                  <td>Layout</td>
+                  <td>Renders the responsive CSS grid; handles empty and loading skeleton states.</td>
+                </tr>
+                <tr>
+                  <td><code>&lt;ProductCard /&gt;</code></td>
+                  <td>Presentational</td>
+                  <td>Receives a single product object; emits <code>onEdit(product)</code> and <code>onDelete(product.id)</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>&lt;ProductModal /&gt;</code></td>
+                  <td>Controlled Form</td>
+                  <td>Maintains internal form state, executes field validations, and emits formatted payload on submit.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 7. UI Wireframe & Layout -->
+        <section class="content-section" id="wireframe">
+          <div class="section-header-wrap">
+            <h1 class="section-title">7. UI Wireframe &amp; Layout</h1>
+            <span class="section-tag">Visual Specs</span>
+          </div>
+          <p>The user interface follows an e-commerce catalog dashboard pattern. The layout is optimized to make component boundaries immediately visible to students and reviewers:</p>
+
+          <div class="wireframe-block">
+            <svg viewBox="0 0 700 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="React Component Wireframe Layout">
+              <rect width="700" height="640" fill="#ffffff"/>
+
+              <!-- App Header & Action -->
+              <rect x="20" y="16" width="660" height="42" rx="6" fill="#f8f6f0" stroke="#c9c2b2" stroke-width="1"/>
+              <text x="36" y="42" font-size="14" font-weight="bold" fill="#1c1b19" font-family="'JetBrains Mono', monospace">&lt;Header /&gt; Stockroom Ledger</text>
+              <rect x="530" y="24" width="136" height="26" rx="4" fill="#275240"/>
+              <text x="598" y="41" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif">+ Add Product</text>
+
+              <!-- Toolbar: Search & Chips -->
+              <rect x="20" y="68" width="400" height="34" rx="4" fill="none" stroke="#c9c2b2" stroke-width="1"/>
+              <circle cx="38" cy="85" r="6" fill="none" stroke="#8a8a86" stroke-width="1.5"/>
+              <line x1="42" y1="89" x2="47" y2="94" stroke="#8a8a86" stroke-width="1.5"/>
+              <text x="56" y="89" font-size="11" fill="#8a8a86" font-family="'JetBrains Mono', monospace">&lt;SearchBar /&gt; filter by title...</text>
+
+              <!-- Filter Chips -->
+              <rect x="430" y="73" width="46" height="24" rx="12" fill="#275240"/>
+              <text x="453" y="89" font-size="10" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif">All</text>
+              <rect x="484" y="73" width="70" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+              <text x="519" y="89" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Electronics</text>
+              <rect x="562" y="73" width="60" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+              <text x="592" y="89" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Jewelery</text>
+              <rect x="630" y="73" width="50" height="24" rx="12" fill="none" stroke="#b4b2a9"/>
+              <text x="655" y="89" font-size="10" fill="#5f5e5a" text-anchor="middle" font-family="Arial, sans-serif">Men</text>
+
+              <!-- Stats bar -->
+              <rect x="20" y="112" width="660" height="22" fill="#e5ede7" rx="3"/>
+              <text x="32" y="127" font-size="10" font-family="'JetBrains Mono', monospace" fill="#275240">Showing 20 of 20 products &bull; &lt;StatsBar /&gt;</text>
+
+              <!-- Product Cards Grid: Row 1 -->
+              <g font-family="Arial, sans-serif">
+              <!-- Card 1 -->
+              <g transform="translate(20,146)">
+                <rect width="200" height="230" rx="6" fill="#fcfbf8" stroke="#c9c2b2"/>
+                <text x="12" y="18" font-size="9" fill="#275240" font-family="'JetBrains Mono', monospace">&lt;ProductCard id="1" /&gt;</text>
+                <rect x="20" y="26" width="160" height="90" rx="4" fill="#eae6dc" stroke="#dcd6c8"/>
+                <line x1="20" y1="26" x2="180" y2="116" stroke="#dcd6c8"/>
+                <line x1="180" y1="26" x2="20" y2="116" stroke="#dcd6c8"/>
+                <rect x="20" y="124" width="140" height="8" rx="2" fill="#b4b2a9"/>
+                <rect x="20" y="136" width="90" height="7" rx="2" fill="#dcd6c8"/>
+                <text x="20" y="162" font-size="14" font-weight="bold" fill="#1c1b19">$109.95</text>
+                <rect x="135" y="150" width="45" height="15" rx="7" fill="#c0dd97"/>
+                <text x="157" y="161" font-size="9" text-anchor="middle" fill="#27500a">★ 4.2</text>
+                <!-- Actions -->
+                <rect x="20" y="180" width="75" height="24" rx="4" fill="#eae6dc" stroke="#b4b2a9"/>
+                <text x="57" y="196" font-size="10" text-anchor="middle" fill="#383530">Edit</text>
+                <rect x="105" y="180" width="75" height="24" rx="4" fill="#fff" stroke="#d9534f"/>
+                <text x="142" y="196" font-size="10" text-anchor="middle" fill="#d9534f">Delete</text>
+              </g>
+
+              <!-- Card 2 -->
+              <g transform="translate(250,146)">
+                <rect width="200" height="230" rx="6" fill="#fcfbf8" stroke="#c9c2b2"/>
+                <text x="12" y="18" font-size="9" fill="#275240" font-family="'JetBrains Mono', monospace">&lt;ProductCard id="2" /&gt;</text>
+                <rect x="20" y="26" width="160" height="90" rx="4" fill="#eae6dc" stroke="#dcd6c8"/>
+                <line x1="20" y1="26" x2="180" y2="116" stroke="#dcd6c8"/>
+                <line x1="180" y1="26" x2="20" y2="116" stroke="#dcd6c8"/>
+                <rect x="20" y="124" width="150" height="8" rx="2" fill="#b4b2a9"/>
+                <rect x="20" y="136" width="100" height="7" rx="2" fill="#dcd6c8"/>
+                <text x="20" y="162" font-size="14" font-weight="bold" fill="#1c1b19">$22.30</text>
+                <rect x="135" y="150" width="45" height="15" rx="7" fill="#c0dd97"/>
+                <text x="157" y="161" font-size="9" text-anchor="middle" fill="#27500a">★ 4.7</text>
+                <!-- Actions -->
+                <rect x="20" y="180" width="75" height="24" rx="4" fill="#eae6dc" stroke="#b4b2a9"/>
+                <text x="57" y="196" font-size="10" text-anchor="middle" fill="#383530">Edit</text>
+                <rect x="105" y="180" width="75" height="24" rx="4" fill="#fff" stroke="#d9534f"/>
+                <text x="142" y="196" font-size="10" text-anchor="middle" fill="#d9534f">Delete</text>
+              </g>
+
+              <!-- Card 3 -->
+              <g transform="translate(480,146)">
+                <rect width="200" height="230" rx="6" fill="#fcfbf8" stroke="#c9c2b2"/>
+                <text x="12" y="18" font-size="9" fill="#275240" font-family="'JetBrains Mono', monospace">&lt;ProductCard id="3" /&gt;</text>
+                <rect x="20" y="26" width="160" height="90" rx="4" fill="#eae6dc" stroke="#dcd6c8"/>
+                <line x1="20" y1="26" x2="180" y2="116" stroke="#dcd6c8"/>
+                <line x1="180" y1="26" x2="20" y2="116" stroke="#dcd6c8"/>
+                <rect x="20" y="124" width="130" height="8" rx="2" fill="#b4b2a9"/>
+                <rect x="20" y="136" width="80" height="7" rx="2" fill="#dcd6c8"/>
+                <text x="20" y="162" font-size="14" font-weight="bold" fill="#1c1b19">$55.99</text>
+                <rect x="135" y="150" width="45" height="15" rx="7" fill="#fac775"/>
+                <text x="157" y="161" font-size="9" text-anchor="middle" fill="#633806">★ 3.9</text>
+                <!-- Actions -->
+                <rect x="20" y="180" width="75" height="24" rx="4" fill="#eae6dc" stroke="#b4b2a9"/>
+                <text x="57" y="196" font-size="10" text-anchor="middle" fill="#383530">Edit</text>
+                <rect x="105" y="180" width="75" height="24" rx="4" fill="#fff" stroke="#d9534f"/>
+                <text x="142" y="196" font-size="10" text-anchor="middle" fill="#d9534f">Delete</text>
+              </g>
+
+              <!-- Card 4 (Row 2) -->
+              <g transform="translate(20,396)">
+                <rect width="200" height="220" rx="6" fill="#fcfbf8" stroke="#c9c2b2"/>
+                <text x="12" y="18" font-size="9" fill="#275240" font-family="'JetBrains Mono', monospace">&lt;ProductCard id="4" /&gt;</text>
+                <rect x="20" y="26" width="160" height="85" rx="4" fill="#eae6dc" stroke="#dcd6c8"/>
+                <rect x="20" y="120" width="140" height="8" rx="2" fill="#b4b2a9"/>
+                <text x="20" y="155" font-size="14" font-weight="bold" fill="#1c1b19">$15.99</text>
+                <rect x="20" y="172" width="75" height="24" rx="4" fill="#eae6dc" stroke="#b4b2a9"/>
+                <text x="57" y="188" font-size="10" text-anchor="middle" fill="#383530">Edit</text>
+                <rect x="105" y="172" width="75" height="24" rx="4" fill="#fff" stroke="#d9534f"/>
+                <text x="142" y="188" font-size="10" text-anchor="middle" fill="#d9534f">Delete</text>
+              </g>
+
+              <!-- Modal Preview (Floating Overlay Callout) -->
+              <g transform="translate(250,388)">
+                <rect width="430" height="236" rx="8" fill="#ffffff" stroke="#275240" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.15))"/>
+                <rect x="0" y="0" width="430" height="34" rx="8" fill="#275240"/>
+                <text x="16" y="22" font-size="11" font-weight="bold" fill="#ffffff" font-family="'JetBrains Mono', monospace">&lt;ProductModal mode="edit" /&gt;</text>
+                <text x="408" y="22" font-size="14" fill="#ffffff" text-anchor="end">&times;</text>
+
+                <!-- Input rows -->
+                <text x="18" y="58" font-size="10" font-weight="bold" fill="#383530">Product Title *</text>
+                <rect x="18" y="65" width="394" height="24" rx="4" fill="#f8f6f0" stroke="#c9c2b2"/>
+                <text x="26" y="81" font-size="11" fill="#1c1b19">Mens Casual Slim Fit T-Shirts</text>
+
+                <text x="18" y="107" font-size="10" font-weight="bold" fill="#383530">Price ($) *</text>
+                <rect x="18" y="114" width="180" height="24" rx="4" fill="#f8f6f0" stroke="#c9c2b2"/>
+                <text x="26" y="130" font-size="11" fill="#1c1b19">22.30</text>
+
+                <text x="218" y="107" font-size="10" font-weight="bold" fill="#383530">Category</text>
+                <rect x="218" y="114" width="194" height="24" rx="4" fill="#f8f6f0" stroke="#c9c2b2"/>
+                <text x="226" y="130" font-size="11" fill="#1c1b19">men's clothing &#9662;</text>
+
+                <!-- Action buttons -->
+                <rect x="240" y="190" width="80" height="28" rx="4" fill="#f0ede4" stroke="#c9c2b2"/>
+                <text x="280" y="208" font-size="11" text-anchor="middle" fill="#383530">Cancel</text>
+                <rect x="330" y="190" width="82" height="28" rx="4" fill="#275240"/>
+                <text x="371" y="208" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">Save Changes</text>
+              </g>
+              </g>
+            </svg>
+            <p class="wireframe-caption">Fig 1 — React Component Layout with Controlled Modal Overlay</p>
+          </div>
+        </section>
+
+        <!-- 8. State & Hooks Design -->
+        <section class="content-section" id="state">
+          <div class="section-header-wrap">
+            <h1 class="section-title">8. State &amp; React Hooks Design</h1>
+            <span class="section-tag">Mechanics</span>
+          </div>
+          <p>Proper state scoping is central to writing clean React code. The table below outlines how state is distributed and which built-in React hooks govern each behavior:</p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>State Identifier</th>
+                  <th>Hook Used</th>
+                  <th>Component Owner</th>
+                  <th>Purpose &amp; Immutability Rule</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>products</code></td>
+                  <td><code>useState([])</code></td>
+                  <td><code>&lt;App /&gt;</code></td>
+                  <td>Array of all active product items. Updated via immutable transforms (<code>[...prev, item]</code>, <code>.map()</code>, <code>.filter()</code>).</td>
+                </tr>
+                <tr>
+                  <td><code>searchQuery</code></td>
+                  <td><code>useState("")</code></td>
+                  <td><code>&lt;App /&gt;</code></td>
+                  <td>String tracking search input. Controls derived filtering in real-time.</td>
+                </tr>
+                <tr>
+                  <td><code>selectedCategory</code></td>
+                  <td><code>useState("all")</code></td>
+                  <td><code>&lt;App /&gt;</code></td>
+                  <td>String representing active category chip.</td>
+                </tr>
+                <tr>
+                  <td><code>modalConfig</code></td>
+                  <td><code>useState(null)</code></td>
+                  <td><code>&lt;App /&gt;</code></td>
+                  <td>Object: <code>{ isOpen: boolean, mode: 'create'|'edit', product?: Product }</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>formData</code></td>
+                  <td><code>useState(initial)</code></td>
+                  <td><code>&lt;ProductModal /&gt;</code></td>
+                  <td>Local controlled form state. Handles field changes and reset on close.</td>
+                </tr>
+                <tr>
+                  <td><code>filteredProducts</code></td>
+                  <td><code>useMemo(...)</code></td>
+                  <td><code>&lt;App /&gt;</code></td>
+                  <td><strong>Derived state:</strong> computed from <code>products</code>, <code>searchQuery</code>, and <code>selectedCategory</code> without extra state.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout react-tip">
+            <div class="callout-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#087ea4" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              React Fundamentals Tip: State Immutability
+            </div>
+            Never mutate state directly! When modifying the products array:
+            <ul style="margin: 8px 0 0; padding-left: 18px;">
+              <li><strong>Create:</strong> <code>setProducts(prev =&gt; [newProduct, ...prev]);</code></li>
+              <li><strong>Update:</strong> <code>setProducts(prev =&gt; prev.map(p =&gt; p.id === updated.id ? updated : p));</code></li>
+              <li><strong>Delete:</strong> <code>setProducts(prev =&gt; prev.filter(p =&gt; p.id !== id));</code></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 9. Non-Functional Requirements -->
+        <section class="content-section" id="nfr">
+          <div class="section-header-wrap">
+            <h1 class="section-title">9. Non-Functional Reqs &amp; Best Practices</h1>
+            <span class="section-tag">Quality</span>
+          </div>
+          <ul>
+            <li><strong>Strict Mode Compliance:</strong> Must run cleanly under React 18/19 <code>&lt;React.StrictMode&gt;</code> without duplicate effect side-effect bugs or memory leaks.</li>
+            <li><strong>Unique and Stable Keys:</strong> Every mapped element in <code>&lt;ProductGrid /&gt;</code> must use a unique identifier (e.g., <code>key={product.id}</code>). <em>Never use array indexes as keys</em> for dynamic lists.</li>
+            <li><strong>No Direct DOM Access:</strong> Zero occurrences of <code>document.getElementById()</code> or direct DOM manipulation. All DOM modifications occur through React state and refs (if necessary).</li>
+            <li><strong>Clean Folder Organization:</strong>
+              <div class="component-tree-card" style="margin: 10px 0; font-size: 12.5px;">
+                src/<br>
+                ├── components/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="desc">// Reusable presentational components</span><br>
+                │ &nbsp; ├── Header.jsx<br>
+                │ &nbsp; ├── ProductCard.jsx<br>
+                │ &nbsp; ├── ProductGrid.jsx<br>
+                │ &nbsp; ├── ProductModal.jsx<br>
+                │ &nbsp; ├── SearchBar.jsx<br>
+                │ &nbsp; └── Toast.jsx<br>
+                ├── services/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="desc">// API fetch helper modules</span><br>
+                │ &nbsp; └── api.js<br>
+                ├── App.jsx &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="desc">// Main container with state &amp; effects</span><br>
+                ├── main.jsx &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="desc">// React entrypoint</span><br>
+                └── index.css &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="desc">// Global styles &amp; variables</span>
+              </div>
+            </li>
+            <li><strong>Accessibility Baseline:</strong> Modals trap focus and can be dismissed via the <code>Escape</code> key. Form inputs carry appropriate <code>&lt;label htmlFor="..."&gt;</code> tags.</li>
+          </ul>
+        </section>
+
+        <!-- 10. Known Limitations & React Gotchas -->
+        <section class="content-section" id="limitations">
+          <div class="section-header-wrap">
+            <h1 class="section-title">10. React Gotchas &amp; Limitations</h1>
+            <span class="section-tag">Constraints</span>
+          </div>
+          <div class="callout">
+            <div class="callout-title">Mock API Behavioral Constraints</div>
+            <ul style="margin: 6px 0 0; padding-left: 18px;">
+              <li><strong>Non-Persistent Backend:</strong> The Fake Store API responds with successful HTTP 200/201 status codes and JSON representations for POST, PUT, and DELETE, but it <em>does not persist changes in a real database</em>. Local React state must act as the ultimate source of truth during the user session.</li>
+              <li><strong>Client-Generated IDs:</strong> Creating a new product returns a placeholder ID from Fake Store API (often <code>21</code>). The client should handle potential duplicate ID conflicts by appending timestamps or using <code>crypto.randomUUID()</code> for new local items.</li>
+              <li><strong>Asynchronous State Batching:</strong> State updates in React 18+ are batched. Learners must use updater functions (e.g. <code>setCount(c =&gt; c + 1)</code>) whenever the new state depends on the previous state.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 11. Success Criteria & Rubric -->
+        <section class="content-section" id="success">
+          <div class="section-header-wrap">
+            <h1 class="section-title">11. Success Criteria &amp; Grading Rubric</h1>
+            <span class="section-tag">Evaluation</span>
+          </div>
+          <p>This rubric serves as an objective checklist for self-assessment, code reviews, and instructor grading:</p>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 25%;">Area</th>
+                  <th style="width: 50%;">Acceptance Criteria</th>
+                  <th>Weight</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Component Decomposition</strong></td>
+                  <td>UI is broken down into focused, modular functional components. Props interfaces are clean and documented.</td>
+                  <td>25%</td>
+                </tr>
+                <tr>
+                  <td><strong>State &amp; Immutability</strong></td>
+                  <td>Zero direct state mutation. Derived state (search &amp; category filters) computed cleanly without state duplication.</td>
+                  <td>25%</td>
+                </tr>
+                <tr>
+                  <td><strong>CRUD Functionality</strong></td>
+                  <td>All four CRUD actions (Read, Create, Update, Delete) operate seamlessly with optimistic UI and toast feedback.</td>
+                  <td>25%</td>
+                </tr>
+                <tr>
+                  <td><strong>Controlled Forms</strong></td>
+                  <td>Inputs are controlled with state; form validation prevents empty or invalid submissions with inline feedback.</td>
+                  <td>15%</td>
+                </tr>
+                <tr>
+                  <td><strong>Code Cleanliness</strong></td>
+                  <td>Zero console warnings, correct unique keys, clean folder structure, zero legacy lifecycle methods.</td>
+                  <td>10%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 12. Roadmap & Next Steps -->
+        <section class="content-section" id="roadmap">
+          <div class="section-header-wrap">
+            <h1 class="section-title">12. Roadmap &amp; Next Steps</h1>
+            <span class="section-tag">Extensions</span>
+          </div>
+          <p>Once the core React basics are implemented, students can level up their architecture with these sequential milestones:</p>
+          <ol>
+            <li><strong>Context API Integration:</strong> Introduce a <code>ThemeContext</code> (Light/Dark mode) and a <code>CartContext</code> to experience global state without props drilling.</li>
+            <li><strong>Custom Hook Extraction:</strong> Refactor data fetching and mutations into a reusable <code>useProducts()</code> custom hook.</li>
+            <li><strong>Debounced Search:</strong> Implement a <code>useDebounce()</code> hook on the search input to simulate realistic search querying.</li>
+            <li><strong>React Router v6:</strong> Expand the single-page catalog to include dynamic routes (<code>/products/:id</code>) for dedicated product detail views.</li>
+            <li><strong>Local Storage Synchronization:</strong> Persist user-created and updated products to browser <code>localStorage</code> so changes survive page reloads.</li>
+          </ol>
+        </section>
+
+      </article>
+    </div>
+
+    <!-- Document Footer -->
+    <footer class="doc-footer">
+      <span>Stockroom Ledger (React Edition) &bull; PRD v2.0 &bull; Foundations Track</span>
+      <a href="#overview" class="back-to-top-link">
+        <span>Back to top</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </a>
+    </footer>
+
+  </main>
+</div>
+
+<!-- Interactive Client-side Script -->
+<script>
+  (function() {
+    // 1. Reading Progress Bar
+    const progressBar = document.getElementById('progress-bar');
+    window.addEventListener('scroll', () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = (window.scrollY / (docHeight || 1)) * 100;
+      if (progressBar) {
+        progressBar.style.width = Math.min(100, Math.max(0, scrolled)) + '%';
+      }
+    });
+
+    // 2. Mobile Menu Toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarNav = document.getElementById('sidebarNav');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+    function toggleMenu(open) {
+      const isOpen = open !== undefined ? open : !sidebarNav.classList.contains('open');
+      sidebarNav.classList.toggle('open', isOpen);
+      sidebarBackdrop.classList.toggle('active', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
+
+    if (menuToggle && sidebarNav && sidebarBackdrop) {
+      menuToggle.addEventListener('click', () => toggleMenu());
+      sidebarBackdrop.addEventListener('click', () => toggleMenu(false));
+    }
+
+    // 3. Close mobile menu on link click
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 960) {
+          toggleMenu(false);
+        }
+      });
+    });
+
+    // 4. Scrollspy (IntersectionObserver)
+    const sections = document.querySelectorAll('section.content-section');
+    const navMap = new Map();
+    navLinks.forEach(link => {
+      const targetId = link.getAttribute('data-section');
+      if (targetId) navMap.set(targetId, link);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const activeId = entry.target.id;
+          navLinks.forEach(l => l.classList.remove('active'));
+          const currentLink = navMap.get(activeId);
+          if (currentLink) {
+            currentLink.classList.add('active');
+            // Ensure link is visible in sidebar scrollview
+            currentLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        }
+      });
+    }, {
+      rootMargin: '-10% 0px -70% 0px',
+      threshold: 0
+    });
+
+    sections.forEach(section => observer.observe(section));
+
+    // 5. Section Filter in Sidebar
+    const searchInput = document.getElementById('sectionSearch');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        navItems.forEach(item => {
+          const text = item.textContent.toLowerCase();
+          if (text.includes(query)) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
